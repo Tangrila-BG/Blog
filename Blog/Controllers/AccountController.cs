@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace Blog.Controllers
 {
@@ -68,6 +69,26 @@ namespace Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            // Allows for either username or email log in src: http://goo.gl/HGkSWy
+            var user = await UserManager.FindByNameAsync(model.UserNameOrEmail);
+
+            if (user == null)
+            {
+                user = await UserManager.FindByEmailAsync(model.UserNameOrEmail);
+                model.UserNameOrEmail = user.UserName;
+            }
+            else
+            {
+                /*
+                 *  TODO: Add email confirmation
+                if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                {
+                    ViewBag.errorMessage = "You must have a confirmed email to log on.";
+                    return View("Error");
+                }
+                */
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -75,36 +96,8 @@ namespace Blog.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
-            switch (result)
-            {
-                case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+            var result = await SignInManager.PasswordSignInAsync(model.UserNameOrEmail, model.Password, model.RememberMe, shouldLockout: false);
 
-                case SignInStatus.LockedOut:
-                    return View("Lockout");
-
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-
-                case SignInStatus.Failure:
-                default:
-                    ModelState.AddModelError("", "Invalid login attempt.");
-
-                    return View(model);
-            }
-        }
-
-        public async Task<ActionResult> LoginEmail(LoginEmailViewModel model, string returnUrl)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:
