@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Blog.CustomValidators;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Blog.Models
@@ -65,7 +66,9 @@ namespace Blog.Models
     public class RegisterViewModel
     {
         [Required]
-        [StringLength(50, ErrorMessage = "The {0} must be no more than {1} characters long")]
+        [StringLength(50, ErrorMessage = "The {0} must be between {2} and {1} characters long", MinimumLength = 3)]
+        [RegularExpression("^([a-zA-Z][\\w.]+|[0-9][0-9_.]*[a-zA-Z]+[\\w.]*)$", ErrorMessage = "The {0} can contain only latin letters, numbers, and symbols _ (underscore), . (dot), but cannot start with a number or said symbols.")]
+        [System.Web.Mvc.Remote("ValidateUserName", "Account", HttpMethod = "POST", ErrorMessage = "The {0} is not available.")]
         [Display(Name = "Username")]
         public string UserName { get; set; }
 
@@ -81,6 +84,7 @@ namespace Blog.Models
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 1)]
         [DataType(DataType.Password)]
+        [NotEqualTo("UserName", ErrorMessage = "The Password cannot be the same as Username")]
         [Display(Name = "Password")]
         public string Password { get; set; }
 

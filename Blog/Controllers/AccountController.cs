@@ -2,14 +2,11 @@
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using System;
-using System.Globalization;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Security;
+using System.Web.UI;
 
 namespace Blog.Controllers
 {
@@ -168,6 +165,23 @@ namespace Blog.Controllers
         public ActionResult Register()
         {
             return View();
+        }
+
+        //
+        // POST: /Account/ValidateUserName
+
+        [HttpPost]
+        [AllowAnonymous]
+        [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
+        public ActionResult ValidateUserName(string username)
+        {
+            // Used by Remote DataAnotation.
+            // Checks for username availability. By looking up the input username,
+            // which is taken with an AJAX POST operation, in the database
+            // if username already exists in the database - displays error
+            // Source: http://goo.gl/27Y0P
+            var user = UserManager.FindByName(username);
+            return Json(user == null, JsonRequestBehavior.AllowGet);
         }
 
         //

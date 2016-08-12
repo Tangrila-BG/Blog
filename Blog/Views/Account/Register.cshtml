@@ -10,35 +10,40 @@
     @Html.AntiForgeryToken()
     <h4>Create a new account.</h4>
     <hr />
-    @Html.ValidationSummary("", new { @class = "text-danger" })
+    @Html.ValidationSummary(true, "Account creation was unsuccessful. Please correct the errors and try again.", new { @class = "text-danger error-text" })
     <div class="form-group">
         @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", id = "UserName", placeholder = "JohnAdams" })
+            @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error-text" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.FullName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", id = "FullName", placeholder = "John Adams" })
+            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "error-text" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", id = "Email", placeholder = "john.adams@example.com" })
+            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-text" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", id = "Password" })
+            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error-text" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", id = "ConfirmPassword" })
+            @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "error-text" })
         </div>
     </div>
     <div class="form-group">
@@ -50,4 +55,5 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryfunc")
 }
