@@ -7,7 +7,7 @@
 <h2>Edit</h2>
 
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Edit", "Posts", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     
@@ -18,26 +18,93 @@
         @Html.HiddenFor(model => model.Id)
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Title, htmlAttributes: new {@class = "control-label col-md-2"})
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.Title, new {htmlAttributes = new {@class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.Title, "", new {@class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @if (Model.Image.Any(f => f.FileType == FileType.Picture))
+        {
+            <div class="form-group">
+                <span class="control-label col-md-2"><strong>Current Picture</strong></span>
+                <div class="col-md-10">
+                    <img src="~/File?id=@Model.Image.First(f => f.FileType == FileType.Picture).FileId" alt="picture" />
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            @Html.Label("Picture", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="file" id="Picture" name="upload" />
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Body, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Body, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.Body, new { htmlAttributes = new { @class = "form-control", rows = 10 } })
                 @Html.ValidationMessageFor(model => model.Body, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Date, htmlAttributes: new { @class = "control-label col-md-2" })
+
+            @Html.LabelFor(model => model.Date, htmlAttributes: new {@class = "control-label col-md-2"})
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Date, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Date, "", new { @class = "text-danger" })
+                @if (User.IsInRole("Administrators"))
+                {
+                    @Html.EditorFor(model => model.Date, new {htmlAttributes = new {@class = "form-control datefield", @Value = ViewBag.Date}})
+                    @Html.ValidationMessageFor(model => model.Date, "", new {@class = "text-danger"})
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.Date,
+                        new
+                        {
+                            htmlAttributes = new
+                            {
+                                @class = "form-control datefield",
+                                @Value = ViewBag.Date,
+                                @readonly = "readonly"
+                            }
+                        })
+                    @Html.ValidationMessageFor(model => model.Date, "", new {@class = "text-danger"})
+                }
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Author, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @if (User.IsInRole("Administrators"))
+                {
+                    <select name="Author_Id">
+                        @foreach (var author in ViewBag.Authors)
+                        {
+                            <option value="@author.Id">@author.UserName</option>
+                        }
+                    </select>
+                }
+                else
+                {
+
+                    <select name="AuthorId">
+                        <option value="@ViewBag.Author.Id">@ViewBag.Author.UserName</option>
+                    </select>
+
+                    @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
+                }
             </div>
         </div>
 

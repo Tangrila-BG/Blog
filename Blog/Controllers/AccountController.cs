@@ -1,5 +1,4 @@
-﻿using Blog.Models;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
+using Blog.Models;
 
 namespace Blog.Controllers
 {
@@ -66,13 +66,15 @@ namespace Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            // Allows for either username or email log in src: http://goo.gl/HGkSWy
+            // Allows for either Username or email log in src: http://goo.gl/HGkSWy
             var user = await UserManager.FindByNameAsync(model.UserNameOrEmail);
 
             if (user == null)
             {
                 user = await UserManager.FindByEmailAsync(model.UserNameOrEmail);
-                model.UserNameOrEmail = user.UserName;
+
+                if (user != null)
+                    model.UserNameOrEmail = user.UserName;
             }
             else
             {

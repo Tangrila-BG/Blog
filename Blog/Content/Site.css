@@ -26,3 +26,9 @@ textarea {
 .error-text {
     color: red;
 }
+
+.floatright{float:right;}
+@media (max-width: 768px)
+{    
+    .floatright{float:none;}
+}  

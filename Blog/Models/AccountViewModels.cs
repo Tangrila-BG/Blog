@@ -1,6 +1,6 @@
-﻿using Blog.CustomValidators;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Blog.Helpers;
 
 namespace Blog.Models
 {
@@ -78,6 +78,8 @@ namespace Blog.Models
 
         [Required]
         [EmailAddress]
+        [RegularExpression("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
+            ErrorMessage = "The email address you entered does not appear to be valid")]
         [Display(Name = "Email")]
         public string Email { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace Blog.CustomValidators
+namespace Blog.Helpers
 {
     public class ModelClientValidationNotEqualToRule : ModelClientValidationRule
     {

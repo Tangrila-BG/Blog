@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Blog.Models
 {
@@ -18,6 +15,13 @@ namespace Blog.Models
             return new ApplicationDbContext();
         }
 
-        public System.Data.Entity.DbSet<Blog.Models.Post> Posts { get; set; }
+        public DbSet<Post> Posts { get; set; }
+
+        public DbSet<Comment> Comments { get; set; }
+
+        public DbSet<File> Files { get; set; }
+
+        public DbSet<FilePath> FilesPaths { get; set; }
+
     }
 }

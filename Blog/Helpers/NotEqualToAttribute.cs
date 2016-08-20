@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
-namespace Blog.CustomValidators
+namespace Blog.Helpers
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class NotEqualToAttribute : ValidationAttribute, IClientValidatable

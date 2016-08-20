@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Blog.Models.Post>
+﻿@model IEnumerable<Post>
 
 @{
     ViewBag.Title = "Index";
@@ -12,10 +12,13 @@
 <table class="table">
     <tr>
         <th>
+            @Html.DisplayNameFor(model => model.Image)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.Title)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Body)
+            @Html.DisplayNameFor(model => model.Description)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Date)
@@ -25,19 +28,25 @@
 
 @foreach (var item in Model) {
     <tr>
+
+        <td>
+            @if (item.Image.Any(f => f.FileType == FileType.Picture))
+            {
+                <img src="~/File?id=@item.Image.First(f => f.FileType == FileType.Picture).FileId" width="110" height="110" alt="thumbnail"/>
+            }
+        </td>
+        
         <td>
             @Html.DisplayFor(modelItem => item.Title)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Body)
+            @Html.DisplayFor(modelItem => item.Description)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Date)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            @Html.ActionLink("Details", "Details", new {id = item.Id})
         </td>
     </tr>
 }

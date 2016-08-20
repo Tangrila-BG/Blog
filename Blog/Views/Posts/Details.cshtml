@@ -1,5 +1,5 @@
-﻿@model Blog.Models.Post
-
+﻿@model Post
+@using Blog.Models
 @{
     ViewBag.Title = "Details";
 }
@@ -10,6 +10,22 @@
     <h4>Post</h4>
     <hr />
     <dl class="dl-horizontal">
+
+        @if (Model.Image.Any(f => f.FileType == FileType.Picture))
+        {
+            <dt>
+                Picture
+            </dt>
+            <dd>
+                <img src="~/File?id=@Model.Image.First(f => f.FileType == FileType.Picture).FileId" alt="post picture"/>
+            </dd>
+        }
+        <dt>
+            test
+        </dt>
+        <dd>
+            <img src="http://img.imageresizing.net/s3/resizer-web/sampleimages/tutorials2.png?w=100&h=100&mode=max" />
+        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Title)
         </dt>
