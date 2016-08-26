@@ -15,7 +15,11 @@ namespace Blog
                         "~/Scripts/jquery.validate*"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryfunc").Include(
-                   "~/Scripts/jquery.functionality*"));
+                        "~/Scripts/jquery.functionality*"));
+
+            bundles.Add(new ScriptBundle("~/bundles/customval").Include(
+                        "~/Scripts/jquery.customvalidate*"
+                ));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.

@@ -13,7 +13,7 @@ namespace Blog.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201608171131225_Files"; }
+            get { return "201608250919383_Files"; }
         }
         
         string IMigrationMetadata.Source

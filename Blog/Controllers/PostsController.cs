@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Blog.Models;
-using Microsoft.AspNet.Identity;
+using Microsoft.Ajax.Utilities;
+using File = Blog.Models.File;
 
 namespace Blog.Controllers
 {
     [Authorize]
     public class PostsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        private ApplicationUser user = new ApplicationUser();
+        
 
         // GET: Posts
         public ActionResult Index()
@@ -30,7 +29,7 @@ namespace Blog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Post post = db.Posts.Include(p => p.Image).SingleOrDefault(p => p.Id == id);
+            Post post = db.Posts.Include(p => p.Files).SingleOrDefault(p => p.Id == id);
             if (post == null)
             {
                 return HttpNotFound();
@@ -41,7 +40,6 @@ namespace Blog.Controllers
         // GET: Posts/Create
         public ActionResult Create()
         {
-            DateTime dt = DateTime.Now.Date;
             ViewBag.Date = $"{dt:yyyy-MM-dd}";
             return View();
         }
@@ -51,25 +49,25 @@ namespace Blog.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,Description,Body,Date,AuthorId,Images")] Post post, HttpPostedFileBase upload)
+        public ActionResult Create([Bind(Include = "Id,Title,Description,Body,AuthorId,Files")] Post post, HttpPostedFileBase upload)
         {
             if (!ModelState.IsValid) return View(post);
-
+           
+            // image handling
             if (upload != null && upload.ContentLength > 0)
             {
-                var picture = new File
+                var image = new File
                 {
                     FileName = System.IO.Path.GetFileName(upload.FileName),
-                    FileType = FileType.Picture,
+                    FileType = FileType.Image,
                     ContentType = upload.ContentType
                 };
                 using (var reader = new System.IO.BinaryReader(upload.InputStream))
                 {
-                    picture.Content = reader.ReadBytes(upload.ContentLength);
+                    image.Content = reader.ReadBytes(upload.ContentLength);
                 }
-                post.Image = new List<File> { picture };
+                post.Files = new List<File> { image };
             }
-
             post.Author = db.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             db.Posts.Add(post);
             db.SaveChanges();
@@ -83,14 +81,13 @@ namespace Blog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Post post = db.Posts.Include(p => p.Image).SingleOrDefault(p => p.Id == id);
+            Post post = db.Posts.Include(p => p.Files).SingleOrDefault(p => p.Id == id);
             if (post == null)
             {
                 return HttpNotFound();
             }
 
             var authors = db.Users.ToList().OrderByDescending(u => u.Id == post.AuthorId);
-            DateTime dt = DateTime.Now.Date;
 
             ViewBag.Authors = authors;
             ViewBag.Author = post.Author;
@@ -104,36 +101,56 @@ namespace Blog.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Description,Body,Date,AuthorId,Images")] Post post, HttpPostedFileBase upload)
+        public ActionResult Edit([Bind(Include = "Id,Title,Description,Body,Date,AuthorId,Files")] Post post, HttpPostedFileBase upload)
         {
-            if (!ModelState.IsValid) return View(post);
-            var postToUpdate = db.Posts.FirstOrDefault(p => p.Id == post.Id);
+            string[] validImageTypes =
+                    {
+                        "image/gif" ,
+                        "image/jpeg" ,
+                        "image/pjpeg" ,
+                        "image/png"
+                    };
+            //if (post.Files == null || post.Files.Count == 0)
+            //    ModelState.AddModelError("Files", "This field is required");
+            
 
-            if (upload != null && upload.ContentLength > 0)
+            if (ModelState.IsValid)
             {
-                if (postToUpdate != null && postToUpdate.Image.Any(f => f.FileType == FileType.Picture))
+                var postToUpdate = db.Posts.Include(f => f.Files).SingleOrDefault(p => p.Id == post.Id);
+               
+                if (upload != null && upload.ContentLength > 0)
                 {
-                    db.Files.Remove(postToUpdate.Image.First(f => f.FileType == FileType.Picture));
-                }
+                    if (!validImageTypes.Contains(upload.ContentType))
+                    {
+                        ModelState.AddModelError("Files", "Please choose either a GIF, JPG or PNG image.");
+                        return View(postToUpdate);
+                    }
 
-                var picture = new File
-                {
-                    FileName = System.IO.Path.GetFileName(upload.FileName),
-                    FileType = FileType.Picture,
-                    ContentType = upload.ContentType
-                };
+                    if (postToUpdate.Files != null && postToUpdate.Files.Any(f => f.FileType == FileType.Image))
+                    {
+                        db.Files.Remove(postToUpdate.Files.First(f => f.FileType == FileType.Image));
+                    }
 
-                using (var reader = new System.IO.BinaryReader(upload.InputStream))
-                {
-                    picture.Content = reader.ReadBytes(upload.ContentLength);
+                    var image = new File
+                    {
+                        FileName = System.IO.Path.GetFileName(upload.FileName) ,
+                        FileType = FileType.Image ,
+                        ContentType = upload.ContentType
+                    };
+
+
+                    using (var reader = new System.IO.BinaryReader(upload.InputStream))
+                    {
+                        image.Content = reader.ReadBytes(upload.ContentLength);
+                    }
+                    postToUpdate.Files = new List<File> {image};
                 }
-                postToUpdate.Image = new List<File> { picture };
+                post = postToUpdate;
+                db.Entry(post).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
             }
-
-            post = postToUpdate;
-            db.Entry(post).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            return View(post);
         }
 
         // GET: Posts/Delete/5
@@ -170,6 +187,10 @@ namespace Blog.Controllers
             }
             base.Dispose(disposing);
         }
-        
+
+        // HELPERS
+
+        private ApplicationDbContext db = new ApplicationDbContext();
+        private DateTime dt = DateTime.Now.Date;
     }
 }

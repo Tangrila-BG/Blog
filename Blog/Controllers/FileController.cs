@@ -6,9 +6,7 @@ namespace Blog.Controllers
     public class FileController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        
-        //
-        // GET: /File/
+        // GET: File
         public ActionResult Index(int id)
         {
             var fileToRetrieve = db.Files.Find(id);

@@ -11,11 +11,11 @@
     {
         <article class="recipe list-group clearfix item col-xs-8">
         
-            @if (post.Image.Any(f => f.FileType == FileType.Picture))
-            {
-                <img class="img-thumbnail" src="~/File?id=@post.Image.First(f => f.FileType == FileType.Picture).FileId" width="110" height="110" alt="thumbnail" />
-            }
             @Html.ActionLink(post.Title, "Details", "Posts", new {id = post.Id}, new {@class = "list-group-item-heading"})
+            @if (post.Files.Any(f => f.FileType == FileType.Image))
+            {
+                <img src="~/File?id=@post.Files.First(f => f.FileType == FileType.Image).FileId" alt="image" width="110" height="110" />
+            }
             <div class="list-group-item">
                 @Html.Raw(post.Description)
             </div>

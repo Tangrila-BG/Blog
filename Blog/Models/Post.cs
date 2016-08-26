@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Blog.Models
 {
+    
     public class Post
     {
 
@@ -45,9 +46,7 @@ namespace Blog.Models
 
         public ICollection<Comment> Comments { get; set; }
 
-        public virtual ICollection<File> Image { get; set; }
-
-        public virtual ICollection<FilePath> FilePaths { get; set; }
+        public virtual ICollection<File> Files { get; set; }
 
     }
 }

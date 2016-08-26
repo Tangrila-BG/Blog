@@ -7,7 +7,7 @@
 
     <ul class="nav navbar-nav navbar-right ">
         <li>
-            <a data-toggle="tooltip" title="Account Manager" href="@Url.Action("Index", "Manage")"><span class="glyphicon glyphicon-user"></span> Hello @User.Identity.GetUserName()!</a>
+            <a data-toggle="tooltip" data-placement="bottom" title="Account Manager" href="@Url.Action("Index", "Manage")"><span class="glyphicon glyphicon-user"></span> Hello @User.Identity.GetUserName()!</a>
         </li>
         <li ><a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log off</a></li>
     </ul>

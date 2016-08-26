@@ -21,7 +21,5 @@ namespace Blog.Models
 
         public DbSet<File> Files { get; set; }
 
-        public DbSet<FilePath> FilesPaths { get; set; }
-
     }
 }
