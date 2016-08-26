@@ -1,6 +1,8 @@
-# Blog
-SoftUni Blog Project
+# Culinary Site
+SoftUni Project
 
-This is a homework project for Software University - SoftUni
+Idea -
+A site somewhat resembling a culinary site with recipes, navigation, image uploading etc.
 
+Homework project for Software University - SoftUni
 http://www.softuni.bg
