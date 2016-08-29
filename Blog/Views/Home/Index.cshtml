@@ -6,10 +6,10 @@
 
 <h1>Recipes</h1>
 
-<section class="row">
+<section class="row table">
     @foreach (var post in Model)
     {
-        <article class="recipe list-group clearfix item col-xs-8">
+        <article class="recipe col-md-8">
         
             @Html.ActionLink(post.Title, "Details", "Posts", new {id = post.Id}, new {@class = "list-group-item-heading"})
             @if (post.Files.Any(f => f.FileType == FileType.Image))
@@ -20,5 +20,9 @@
                 @Html.Raw(post.Description)
             </div>
         </article>
-                    }
+    }
 </section>
+
+<aside class="">
+    <div></div>
+</aside>

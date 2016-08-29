@@ -35,7 +35,24 @@
         <dd>
             @Html.DisplayFor(model => model.Body)
         </dd>
+        @if (ViewBag.Tags.Count > 0)
+        {
+            
+            <dt>
+                @Html.DisplayNameFor(model => model.PostTags)
+            </dt>
 
+            <dd>
+                <button class="btn btn-primary btn-xs" id="hider" style="display: none" type="button" data-toggle="collapse" data-target="#tagsDiv">Show Tags</button>
+                <div class="collapse" id="tagsDiv">
+                    @foreach (var tag in ViewBag.Tags)
+                    {
+                        <span class="tag label label-info">@tag</span>
+                    }
+                </div>
+            </dd>
+
+        }
         <dt>
             @Html.DisplayNameFor(model => model.Date)
         </dt>
@@ -50,3 +67,23 @@
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
+
+@Scripts.Render("~/bundles/jquery")
+
+<script type="text/javascript">
+    // Tags view
+    // Depending on the tags count displays diffenret view
+    // > 5 tags displays plainly. 5 > collapsable through a button
+    $(document)
+        .ready(function () {
+            function tagView() {
+                var count = $("#tagsDiv").children().length;;
+                var button = $("#hider");
+                if (count > 5)
+                    button.attr("style", "display: inline");
+                else
+                    $("#tagsDiv").toggleClass("collapse");
+            }
+            tagView();
+        });
+</script>

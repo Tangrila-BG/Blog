@@ -48,5 +48,8 @@ namespace Blog.Models
 
         public virtual ICollection<File> Files { get; set; }
 
+        [Display(Name = "Tags")]
+        public ICollection<PostTag> PostTags { get; set; }
+
     }
 }

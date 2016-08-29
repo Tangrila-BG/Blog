@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Blog.Models;
@@ -29,17 +30,22 @@ namespace Blog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Post post = db.Posts.Include(p => p.Files).SingleOrDefault(p => p.Id == id);
+            Post post = db.Posts.Include(p => p.Files).Include(p => p.PostTags).SingleOrDefault(p => p.Id == id);
             if (post == null)
             {
                 return HttpNotFound();
             }
+            var tags = db.Tags.ToList();
+            var postTags = (from tag in post.PostTags from t in tags where tag.TagId == t.Id select t.Name).ToList();
+            ViewBag.Tags = postTags;
             return View(post);
         }
 
         // GET: Posts/Create
         public ActionResult Create()
         {
+            
+            ViewBag.Tags = TagsByIdAndName();
             ViewBag.Date = $"{dt:yyyy-MM-dd}";
             return View();
         }
@@ -49,8 +55,15 @@ namespace Blog.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,Description,Body,AuthorId,Files")] Post post, HttpPostedFileBase upload)
+        public ActionResult Create([Bind(Include = "Id,Title,Description,Body,AuthorId,Files,TagIds")]
+            Post post, HttpPostedFileBase upload)
         {
+            // Receives ready-to-use Data from Tags/Tags controller/action
+            // containing the ids of the selected tags to add to the post
+            int[] tagIds = TempData["tagIds"] as int[];
+
+            ViewBag.Tags = TagsByIdAndName();
+
             if (!ModelState.IsValid) return View(post);
            
             // image handling
@@ -67,6 +80,20 @@ namespace Blog.Controllers
                     image.Content = reader.ReadBytes(upload.ContentLength);
                 }
                 post.Files = new List<File> { image };
+            }
+
+            if (tagIds != null && tagIds.Length > 0)
+            {
+                foreach (var tagId in tagIds)
+                {
+                    var postTag = new PostTag
+                    {
+                        Post = post,
+                        PostId = post.Id,
+                        TagId = tagId
+                    };
+                    db.PostTags.Add(postTag);
+                }
             }
             post.Author = db.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             db.Posts.Add(post);
@@ -192,5 +219,11 @@ namespace Blog.Controllers
 
         private ApplicationDbContext db = new ApplicationDbContext();
         private DateTime dt = DateTime.Now.Date;
+
+        private Dictionary<int , string> TagsByIdAndName()
+        {
+            return db.Tags.Select(t => new { t.Id, t.Name }).OrderBy(x => x.Name).ToDictionary(t => t.Id, t => t.Name);
+        }
+
     }
 }

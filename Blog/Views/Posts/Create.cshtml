@@ -1,22 +1,17 @@
 ﻿@model Blog.Models.Post
-
 @{
     ViewBag.Title = "Create";
 }
-
 <h2>Create</h2>
 
-
-@using (Html.BeginForm("Create", "Posts", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Create", "Posts", null, FormMethod.Post, new { id = "create", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
         <h4>Post</h4>
         <hr />
-
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
         <div class="form-group">
             @Html.Label("Image", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -36,7 +31,6 @@
                 </div>
             </div>
         </div>
-
         <div class="form-group">
             @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -44,7 +38,6 @@
                 @Html.ValidationMessageFor(model => model.Title, "", new { @class = "error-text" })
             </div>
         </div>
-
         <div class="form-group">
             @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -52,7 +45,6 @@
                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "error-text" })
             </div>
         </div>
-
         <div class="form-group">
             @Html.LabelFor(model => model.Body, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -62,14 +54,110 @@
         </div>
 
         <div class="form-group">
+            @Html.LabelFor(model => model.PostTags, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tagModal">Select Tags</button>
+                <p class="info text-info">Selecting tags makes your recipe easier to find in searches</p>
+                <div class="modal fade" id="tagModal">
+                    <div class="modal-dialog">
+                        <!-- Modal content -->
+                        <div class="modal-content">
+                            <!-- Modal header -->
+                            <div class="modal-header">
+                                <div>
+                                    <button type="button" class="close" data-dismiss="modal" onclick="clearTagSelection()">&times;</button>
+                                </div>
+                                <h4 class="modal-title">Select Tags</h4>
+                                <p class="info text-info">Selecting tags makes your recipe easier to find in searches</p>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="modal-body btn-group" id="tagModalBody">
+                                
+                                @foreach (var tag in ViewBag.Tags)
+                                {
+                                    <span class="tag btn btn-info btn-sm" id="@tag.Key" onclick="tagSelect(this.id)">@tag.Value</span>
+                                }
+                            </div>
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" onclick="clearTagSelection()">Clear selected</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Create" class="btn btn-default" onclick="selected()" />
             </div>
         </div>
     </div>
 }
-
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/underscorejs")
+
 <script src="~/Scripts/jquery.functionality-imageupload.js"></script>
+<script type="text/javascript">
+    
+
+
+    // pushes the ids of all elements that have
+    // ".btn-success" in their class into var tagIds
+    function selected() {
+        var selectedTags = $('.btn-success');
+        var tagIds = [];
+        $.each(selectedTags,
+            function (index, value) {
+                if (tagIds.indexOf(value.id) === -1)
+                    tagIds.push(value.id);
+            });
+        $.each(tagIds,
+            function(index, value) {
+                console.log(value);
+            });
+        test(tagIds);
+        // for diagnostics
+        // console.log(jQuery.type(selectedTags));
+        // console.log(selectedTags);
+    }
+
+    function clearTagSelection() {
+        var selectedTags = $("#tagModalBody > .btn-success");
+        selectedTags.toggleClass("btn-info");
+        selectedTags.toggleClass("btn-success");
+    }
+
+    function tagSelect(id) {
+        var tag = $(`#${id}`);
+        tag.toggleClass("btn-info");
+        tag.toggleClass("btn-success");
+    }
+
+    
+    function test(tagIds) {
+        var data = tagIds;
+        //'data' is much more complicated in my real application
+        var jsonOfTagIds = JSON.stringify(data);
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: "/Tags/Tags",   
+            data: `ids=${jsonOfTagIds}`,
+            success: function(returnPayload) {
+                console && console.log("request succeeded");
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console && console.log("request failed");
+            },
+
+            processData: false,
+            async: false
+        });
+    }
+</script>

@@ -175,5 +175,16 @@ Remove the chicken from the pan and keep warm. Rapidly boil down the sauce for 1
             post.Author = context.Users.FirstOrDefault(u => u.UserName == authorUsername);
             context.Posts.Add(post);
         }
+
+        private void CreateTag(ApplicationDbContext context , string[] names)
+        {
+            foreach (var name in names)
+            {
+                var tag = new Tag
+                {
+                    Name = name
+                };
+            }
+        }
     }
 }
