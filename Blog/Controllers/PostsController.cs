@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Blog.Extensions;
 using Blog.Models;
 using Microsoft.AspNet.Identity;
 using File = Blog.Models.File;
@@ -64,7 +65,11 @@ namespace Blog.Controllers
 
             ViewBag.Tags = TagsByIdAndName();
 
-            if (!ModelState.IsValid) return View(post);
+            if (!ModelState.IsValid)
+            {
+                this.AddNotification("Post creation unsuccessful", NotificationType.ERROR);
+                return View(post);
+            }
 
             // image handling
             var defImagePath = System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath + "/images/default.jpg";
@@ -93,7 +98,6 @@ namespace Blog.Controllers
 
             }
 
-
             post.Files = new List<File> { image };
 
             if (tagIds != null && tagIds.Length > 0)
@@ -109,10 +113,12 @@ namespace Blog.Controllers
                     db.PostTags.Add(postTag);
                 }
             }
+            
             post.Author = db.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             db.Posts.Add(post);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            bool success = upload != null;
+            return RedirectToAction("Index", "Home", new { success });
         }
 
         // GET: Posts/Edit/5
@@ -131,18 +137,19 @@ namespace Blog.Controllers
             var currentUserId = User.Identity.GetUserId();
             if ((post.AuthorId == null || post.AuthorId != currentUserId) && !User.IsInRole("Administrators"))
             {
-                RedirectToAction("Login", "Account");
+                this.AddNotification("Insufficient rights", NotificationType.WARNING);
+                return RedirectToAction("Login", "Account");
             }
             
-                var authors = db.Users.ToList().OrderByDescending(u => u.Id == post.AuthorId);
+            var authors = db.Users.ToList().OrderByDescending(u => u.Id == post.AuthorId);
 
-                ViewBag.Tags = TagsByIdAndName();
-                ViewBag.PostTags = TagsOfPost(post);
-                ViewBag.Authors = authors;
-                ViewBag.Author = post.Author;
-                ViewBag.Date = $"{dt:yyyy-MM-dd}";
+            ViewBag.Tags = TagsByIdAndName();
+            ViewBag.PostTags = TagsOfPost(post);
+            ViewBag.Authors = authors;
+            ViewBag.Author = post.Author;
+            ViewBag.Date = $"{dt:yyyy-MM-dd}";
 
-                return View(post);
+            return View(post);
             
         }
 
@@ -217,17 +224,17 @@ namespace Blog.Controllers
                     }
                 }
                 */
+                this.AddNotification("Post Edited successfully", NotificationType.SUCCESS);
                 post = postToUpdate;
-                ViewBag.PostTags = TagsOfPost(post);
                 db.Entry(post).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Details", "Posts", new {Id = post.Id});
+                return RedirectToAction("Details", "Posts", new { post.Id });
             }
+            this.AddNotification("Post Edit unsuccessful", NotificationType.ERROR);
             return View(post);
         }
 
         // GET: Posts/Delete/5
-        [Authorize(Roles = "Administrators")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -242,8 +249,10 @@ namespace Blog.Controllers
             var currentUserId = User.Identity.GetUserId();
             if ((post.AuthorId == null || post.AuthorId != currentUserId) && !User.IsInRole("Administrators"))
             {
-                RedirectToAction("Login", "Account");
+                this.AddNotification("Insufficient rights", NotificationType.WARNING);
+                return RedirectToAction("Login", "Account");
             }
+            this.AddNotification("Post Deleted successfully", NotificationType.SUCCESS);
             return View(post);
         }
 

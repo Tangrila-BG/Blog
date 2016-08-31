@@ -226,6 +226,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PostsController.cs" />
     <Compile Include="Controllers\TagsController.cs" />
+    <Compile Include="Extensions\NotificationExtensions.cs" />
     <Compile Include="Helpers\ModelClientValidationNotEqualToRule.cs" />
     <Compile Include="Helpers\NotEqualToAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -330,6 +331,7 @@
     <Content Include="Scripts\jquery-3.1.0.min.js" />
     <Content Include="Scripts\jquery-3.1.0.slim.js" />
     <Content Include="Scripts\jquery-3.1.0.slim.min.js" />
+    <Content Include="Scripts\jquery-notifications.js" />
     <Content Include="Scripts\jquery-ui-1.12.0.js" />
     <Content Include="Scripts\jquery-ui-1.12.0.min.js" />
     <Content Include="Scripts\jQuery.FileUpload\cors\jquery.postmessage-transport.js" />
@@ -402,6 +404,7 @@
     <Content Include="Views\Posts\Edit.cshtml" />
     <Content Include="Views\Posts\Index.cshtml" />
     <Content Include="Scripts\underscore.min.map" />
+    <Content Include="Views\Shared\_Notifications.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
