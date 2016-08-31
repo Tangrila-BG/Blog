@@ -23,7 +23,7 @@ namespace Blog.Controllers
         {
             return View(db.Posts.ToList());
         }
-
+        [AllowAnonymous]
         // GET: Posts/Details/5
         public ActionResult Details(int? id)
         {
