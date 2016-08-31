@@ -6,23 +6,26 @@
 
 <h1>Recipes</h1>
 
-<section class="row table">
+<section class="row">
+    
     @foreach (var post in Model)
     {
-        <article class="recipe col-md-8">
-        
-            @Html.ActionLink(post.Title, "Details", "Posts", new {id = post.Id}, new {@class = "list-group-item-heading"})
+        <article class="media col-md-8">
             @if (post.Files.Any(f => f.FileType == FileType.Image))
             {
-                <img src="~/File?id=@post.Files.First(f => f.FileType == FileType.Image).FileId" alt="image" width="110" height="110" />
+                <a class="media-left" href="@Url.Action("Details", "Posts", new { id = post.Id })">
+                    <img class="media-object" src="~/File?id=@post.Files.First(f => f.FileType == FileType.Image).FileId" alt="image" width="110" height="110" />
+                </a>
             }
-            <div class="list-group-item">
-                @Html.Raw(post.Description)
+            <div class="media-body">
+                <h4 class="media-heading">
+                    @Html.ActionLink(post.Title, "Details", "Posts", new { id = post.Id }, new {})
+                </h4>
+                <p>
+                    @Html.Raw(post.Description)
+                </p>
             </div>
+            <hr style="margin-top: 5px !important; margin-bottom: 2px !important;"/>
         </article>
     }
 </section>
-
-<aside class="">
-    <div></div>
-</aside>

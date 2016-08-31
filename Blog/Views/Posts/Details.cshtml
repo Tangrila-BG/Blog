@@ -1,4 +1,5 @@
-﻿@model Post
+﻿@using Microsoft.AspNet.Identity
+@model Post
 @{
     ViewBag.Title = "Details";
 }
@@ -9,7 +10,7 @@
     <h4>Post</h4>
     <hr />
     <dl class="dl-horizontal">
-        
+
         @if (Model.Files.Any(f => f.FileType == FileType.Image))
         {
             <dt>
@@ -37,7 +38,7 @@
         </dd>
         @if (ViewBag.Tags.Count > 0)
         {
-            
+
             <dt>
                 @Html.DisplayNameFor(model => model.PostTags)
             </dt>
@@ -64,9 +65,20 @@
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @if (User.IsInRole("Administrators") || User.Identity.GetUserId() == Model.AuthorId)
+    {
+        @Html.ActionLink("Edit" , "Edit" , new {id = Model.Id}) @:|
+        if (User.IsInRole("Administrators"))
+        {
+            @Html.ActionLink("Delete", "Delete", new { Model.Id }) @:|
+            @Html.ActionLink("Back to List", "Index") @:|
+        }
+    }
+    @Html.ActionLink("Back to Home", "Index", "Home")
+
 </p>
+
+
 
 @Scripts.Render("~/bundles/jquery")
 

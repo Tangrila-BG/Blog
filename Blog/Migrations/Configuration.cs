@@ -6,7 +6,6 @@ namespace Blog.Migrations
     using System;
     using System.Data.Entity.Migrations;
     using System.Linq;
-
     internal sealed class Configuration : DbMigrationsConfiguration<ApplicationDbContext>
     {
         public Configuration()
@@ -30,8 +29,11 @@ namespace Blog.Migrations
             //    );
             //
 
+
             if (!context.Users.Any())
             {
+
+
                 // If the database is empty, populate sample data in it
 
                 CreateUser(context,"Admin", "admin@gmail.com", "123", "System Administrator");
@@ -42,14 +44,16 @@ namespace Blog.Migrations
                 CreateRole(context, "Administrators");
                 AddUserToRole(context, "Admin", "Administrators");
 
+                CreateTag(context, new []{"onion", "parsley", "nuts", "peanut", "tomato", "potato", "cabbage", "soup", "stew", "baked", "grilled", "fried", "chilled", "boiled", "spicy", "spices", "hot", "cold", "fish", "egg", "sushimi", "sushi", "dressing", "sauce", "rice", "fruit", "vegetable", "pepper", "pizza", "pepperoni", "burger", "pie", "ice-cream", "cream", "cheese", "white-cheese", "bread", "flour", "dessert", "dinner", "breakfast", "brunch", "drink", "milk", "dairy", "vegetarian", "healthy", "saute", "chicken", "meat", "pork", "garlic", "wine", "chocolate", "cake", "apple", "juice", "protein", "lentil", "carrot", "sour", "sweet", "salty", "umami", "chili", "beef", "salad"});
+
                 CreatePost(context,
                     title: "Spiced carrot & lentil soup",
                     description: "A delicious, spicy blend, packed full of iron and low fat to boot. It's ready in under half an hour or can be made in a slow cooker",
                     body: @"Heat a large saucepan and dry-fry the cumin seeds and chilli flakes for 1 min, or until they start to jump around the pan and release their aromas. Scoop out about half of the seeds with a spoon and set aside. Add the oil, carrot, lentils, stock and milk to the pan and bring to the boil. Simmer for 15 mins until the lentils have swollen and softened.
 Whizz the soup with a stick blender or in a food processor until smooth (or leave it chunky if you prefer). Season to taste and finish with a dollop of yogurt and a sprinkling of the reserved toasted spices. Serve with warmed naan breads.",
                     date: new DateTime(2016, 03, 27),
-                    authorUsername: "Meri"
-                    
+                    authorUsername: "Meri",
+                    tags: new []{65, 59, 60, 44}
                 );
 
                 CreatePost(context,
@@ -63,7 +67,8 @@ Simmer it gently. Bring the whole thing to the boil, give it a good stir and put
 Bring on the beans. Drain and rinse 1 can of red kidney beans (410g can) in a sieve and stir them into the chilli pot. Bring to the boil again, and gently bubble without the lid for another 10 minutes, adding a little more water if it looks too dry. Taste a bit of the chilli and season. It will probably take a lot more seasoning than you think. Now replace the lid, turn off the heat and leave your chilli to stand for 10 minutes before serving, and relax. Leaving your chilli to stand is really important as it allows the flavours to mingle and the meat.
 Serve with soured cream and plain boiled long grain rice.",
                     date: new DateTime(2016, 05, 11),
-                    authorUsername: "Meri"
+                    authorUsername: "Meri",
+                    tags: new []{65, 1, 5, 66, 51, 63}
                 );
 
                 CreatePost(context,
@@ -78,7 +83,8 @@ Hold the sieve over the bowl of eggy chocolate mixture and resift the cocoa and 
 Pour the mixture into the prepared tin, scraping every bit out of the bowl with the spatula. Gently ease the mixture into the corners of the tin and paddle the spatula from side to side across the top to level it. Put in the oven and set your timer for 25 minutes. When the buzzer goes, open the oven, pull the shelf out a bit and gently shake the tin. If the brownie wobbles in the middle, it’s not quite done, so slide it back in and bake for another 5 minutes until the top has a shiny, papery crust and the sides are just beginning to come away from the tin. Take out of the oven.
 Leave the whole thing in the tin until completely cold, then, if you’re using the brownie tin, lift up the protruding rim slightly and slide the uncut brownie out on its base. If you’re using a normal tin, lift out the brownie with the foil. Cut into quarters, then cut each quarter into four squares and finally into triangles. These brownies are so addictive you’ll want to make a second batch before the first is finished, but if you want to make some to hide away for a special occasion, it’s useful to know that they’ll keep in an airtight container for a good two weeks and in the freezer for up to a month.",
                     date: new DateTime(2016, 03, 27),
-                    authorUsername: "Meri"
+                    authorUsername: "Meri",
+                    tags: new []{62, 55, 54, 44}
                 );
 
                 CreatePost(context,
@@ -87,7 +93,8 @@ Leave the whole thing in the tin until completely cold, then, if you’re using th
                     body: @"Heat the oil in a large frying pan with a lid and brown the chicken for 5-8 mins until golden. Remove and set aside. Tip in the onion and cook for 3-4 mins until soft. Then add the pepper, garlic, chorizo and Cajun seasoning, and cook for 5 mins more.
 Stir the chicken back in with the rice, add the tomatoes and stock. Cover and simmer for 20-25 mins until the rice is tender.",
                     date: new DateTime(2016, 02, 18),
-                    authorUsername: "Pesho"
+                    authorUsername: "Pesho",
+                    tags: new []{25, 49, 1, 12}
                 );
 
                 CreatePost(context,
@@ -96,7 +103,8 @@ Stir the chicken back in with the rice, add the tomatoes and stock. Cover and si
                     body: @"Pat the chickpeas dry with kitchen paper. Tip into a food processor along with the onion, garlic, parsley, spices, flour and a little salt. Blend until fairly smooth, then shape into four patties with your hands.
 Heat the oil in a non-stick frying pan, add the burgers, then quickly fry for 3 mins on each side until lightly golden. Serve with toasted pittas, tomato salsa and a green salad.",
                     date: new DateTime(2016, 04, 11),
-                    authorUsername: "george"
+                    authorUsername: "george",
+                    tags: new []{31, 1, 5}
                 );
 
                 CreatePost(context,
@@ -106,7 +114,8 @@ Heat the oil in a non-stick frying pan, add the burgers, then quickly fry for 3 
 Melt the rest of the butter in the pan. Add the onion, then fry for about 5 mins until soft. Add garlic, cook for about 1 min, add the mushrooms, cook for 2 mins, then add the wine. Stir in the tomato purée, let the liquid bubble and reduce for about 5 mins, then stir in the thyme and pour over the stock. Slip the chicken back into the pan, then cover and simmer on a low heat for about 1 hr until the chicken is very tender.
 Remove the chicken from the pan and keep warm. Rapidly boil down the sauce for 10 mins or so until it is syrupy and the flavour has concentrated. Put the chicken legs back into the sauce and serve.",
                     date: new DateTime(2016, 06, 30),
-                    authorUsername: "george"
+                    authorUsername: "george",
+                    tags: new []{49, 1, 52}
                 );
 
                 context.SaveChanges();
@@ -165,18 +174,35 @@ Remove the chicken from the pan and keep warm. Rapidly boil down the sauce for 1
         }
 
         private void CreatePost(ApplicationDbContext context,
-            string title, string description, string body, DateTime date, string authorUsername)
+            string title, string description, string body, DateTime date, string authorUsername, int[] tags)
         {
-            var post = new Post();
-            post.Title = title;
-            post.Description = description;
-            post.Body = body;
-            post.Date = date;
-            post.Author = context.Users.FirstOrDefault(u => u.UserName == authorUsername);
+            var post = new Post
+            {
+                Title = title,
+                Description = description,
+                Body = body,
+                Date = date,
+                Author = context.Users.FirstOrDefault(u => u.UserName == authorUsername),
+            };
+
             context.Posts.Add(post);
+
+            foreach (var tagId in tags)
+            {
+                var postTags = new PostTag
+                {
+                    PostId = post.Id,
+                    TagId = tagId,
+                    Post = post
+                };
+
+                context.PostTags.Add(postTags);
+            }
+
+            
         }
 
-        private void CreateTag(ApplicationDbContext context , string[] names)
+        private void CreateTag(ApplicationDbContext context, string[] names)
         {
             foreach (var name in names)
             {
@@ -184,6 +210,8 @@ Remove the chicken from the pan and keep warm. Rapidly boil down the sauce for 1
                 {
                     Name = name
                 };
+
+                context.Tags.Add(tag);
             }
         }
     }

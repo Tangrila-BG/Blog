@@ -1,25 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using Blog.Models;
-using Microsoft.Ajax.Utilities;
-using Newtonsoft.Json;
 
 namespace Blog.Controllers
 {
     public class TagsController : Controller
     {
         private readonly ApplicationDbContext db = new ApplicationDbContext();
-
-        // GET: Post Tags
-        [HttpGet]
-        public ActionResult PostTags(Post post)
-        {
-            var postTags = db.PostTags.Where(tag => tag.PostId == post.Id).ToList();
-            return Json(postTags);
-        }
 
         // POST: Tags
         // Receives data from the client and sends it to
@@ -30,12 +18,23 @@ namespace Blog.Controllers
             // Data comes in format: "[\"37\",\"46\"]"
             // Separates each number into element of array
             // eg. e0: "[\"37\", e1: 
-            var test = model.Ids[0].Split(',');
+            var temp = model.Ids[0].Split(',');
 
+            // gets the url that requested this controller/action
+            var requester = Request.UrlReferrer;
+            
             // From each string takes only the number and parses it as such
-            int[] ids = test.Select(s => int.Parse(Regex.Match(s , @"\d+").Value)).ToArray();
+            int[] ids = temp.Select(s => int.Parse(Regex.Match(s , @"\d+").Value)).ToArray();
+
             TempData["tagIds"] = ids;
-            return RedirectToAction("Create" , "Posts");
+            
+            // depending on which view requested this controller action
+            // sends the data to the view's corresponding controller/action
+            var path = requester.Segments[1] + requester.Segments[2];
+            if (path.ToLower() == "posts/edit/")
+                return RedirectToAction("Edit", "Posts");
+
+            return RedirectToAction("Create", "Posts");
         }
     }
 }

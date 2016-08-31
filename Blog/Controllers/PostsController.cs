@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Blog.Models;
-using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.Identity;
 using File = Blog.Models.File;
 
 namespace Blog.Controllers
@@ -18,6 +17,7 @@ namespace Blog.Controllers
         
 
         // GET: Posts
+        [Authorize(Roles = "Administrators")]
         public ActionResult Index()
         {
             return View(db.Posts.ToList());
@@ -65,22 +65,36 @@ namespace Blog.Controllers
             ViewBag.Tags = TagsByIdAndName();
 
             if (!ModelState.IsValid) return View(post);
-           
+
             // image handling
+            var defImagePath = System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath + "/images/default.jpg";
+            // default image
+            var image = new File
+            {
+                FileName = System.IO.Path.GetFileName(defImagePath),
+                FileType = FileType.Image,
+                ContentType = "image/jpeg",
+                Content = System.IO.File.ReadAllBytes(defImagePath)
+            };
+            // user image
             if (upload != null && upload.ContentLength > 0)
             {
-                var image = new File
+                image = new File
                 {
                     FileName = System.IO.Path.GetFileName(upload.FileName),
-                    FileType = FileType.Image,
+                    FileType = FileType.Image ,
                     ContentType = upload.ContentType
                 };
+
                 using (var reader = new System.IO.BinaryReader(upload.InputStream))
                 {
                     image.Content = reader.ReadBytes(upload.ContentLength);
                 }
-                post.Files = new List<File> { image };
+
             }
+
+
+            post.Files = new List<File> { image };
 
             if (tagIds != null && tagIds.Length > 0)
             {
@@ -113,14 +127,23 @@ namespace Blog.Controllers
             {
                 return HttpNotFound();
             }
+       
+            var currentUserId = User.Identity.GetUserId();
+            if ((post.AuthorId == null || post.AuthorId != currentUserId) && !User.IsInRole("Administrators"))
+            {
+                RedirectToAction("Login", "Account");
+            }
+            
+                var authors = db.Users.ToList().OrderByDescending(u => u.Id == post.AuthorId);
 
-            var authors = db.Users.ToList().OrderByDescending(u => u.Id == post.AuthorId);
+                ViewBag.Tags = TagsByIdAndName();
+                ViewBag.PostTags = TagsOfPost(post);
+                ViewBag.Authors = authors;
+                ViewBag.Author = post.Author;
+                ViewBag.Date = $"{dt:yyyy-MM-dd}";
 
-            ViewBag.Authors = authors;
-            ViewBag.Author = post.Author;
-            ViewBag.Date = $"{dt:yyyy-MM-dd}";
-
-            return View(post);
+                return View(post);
+            
         }
 
         // POST: Posts/Edit/5
@@ -128,8 +151,12 @@ namespace Blog.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Description,Body,Date,AuthorId,Files")] Post post, HttpPostedFileBase upload)
+        public ActionResult Edit([Bind(Include = "Id,Title,Description,Body,Date,AuthorId,Files,PostTags")] Post post, HttpPostedFileBase upload)
         {
+            ViewBag.Tags = TagsByIdAndName();
+
+            int[] tagIds = TempData["tagIds"] as int[];
+
             string[] validImageTypes =
                     {
                         "image/gif" ,
@@ -137,14 +164,11 @@ namespace Blog.Controllers
                         "image/pjpeg" ,
                         "image/png"
                     };
-            //if (post.Files == null || post.Files.Count == 0)
-            //    ModelState.AddModelError("Files", "This field is required");
-            
+
+            var postToUpdate = db.Posts.Include(f => f.Files).Include(p => p.PostTags).SingleOrDefault(p => p.Id == post.Id);
 
             if (ModelState.IsValid)
             {
-                var postToUpdate = db.Posts.Include(f => f.Files).SingleOrDefault(p => p.Id == post.Id);
-               
                 if (upload != null && upload.ContentLength > 0)
                 {
                     if (!validImageTypes.Contains(upload.ContentType))
@@ -172,15 +196,38 @@ namespace Blog.Controllers
                     }
                     postToUpdate.Files = new List<File> {image};
                 }
+                /* EDIT TAGS - HAS DEFECT Saves tags to post correctly, but
+                 * also makes a new post that is a duplicate of the edited one
+                 *
+                if (tagIds != null && tagIds.Length > 0)
+                {
+                    RemoveTagsOfPost(postToUpdate);
+                    postToUpdate.PostTags.Clear();
+                    foreach (var tagId in tagIds)
+                    {
+                        var postTag = new PostTag
+                        {
+                            Post = post,
+                            PostId = post.Id,
+                            TagId = tagId
+                        };
+
+                        db.PostTags.Add(postTag);
+                        postToUpdate.PostTags.Add(postTag);
+                    }
+                }
+                */
                 post = postToUpdate;
+                ViewBag.PostTags = TagsOfPost(post);
                 db.Entry(post).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Posts", new {Id = post.Id});
             }
             return View(post);
         }
 
         // GET: Posts/Delete/5
+        [Authorize(Roles = "Administrators")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -191,6 +238,11 @@ namespace Blog.Controllers
             if (post == null)
             {
                 return HttpNotFound();
+            }
+            var currentUserId = User.Identity.GetUserId();
+            if ((post.AuthorId == null || post.AuthorId != currentUserId) && !User.IsInRole("Administrators"))
+            {
+                RedirectToAction("Login", "Account");
             }
             return View(post);
         }
@@ -215,7 +267,7 @@ namespace Blog.Controllers
             base.Dispose(disposing);
         }
 
-        // HELPERS
+        #region HELPERS
 
         private ApplicationDbContext db = new ApplicationDbContext();
         private DateTime dt = DateTime.Now.Date;
@@ -224,6 +276,24 @@ namespace Blog.Controllers
         {
             return db.Tags.Select(t => new { t.Id, t.Name }).OrderBy(x => x.Name).ToDictionary(t => t.Id, t => t.Name);
         }
+
+        private List<int> TagsOfPost(Post post)
+        {
+            var list = db.PostTags.Where(t => t.PostId == post.Id).Select(t => t.TagId).ToList();
+            return list;
+        }
+
+        private void RemoveTagsOfPost(Post post)
+        {
+            var tags = db.PostTags.Where(t => t.PostId == post.Id);
+            foreach (var postTag in tags)
+            {
+                db.PostTags.Remove(postTag);
+            }
+            db.SaveChanges();
+        }
+
+        #endregion
 
     }
 }
